@@ -62,7 +62,7 @@ const userCtrl = {
 
       const payload = {
         user: {
-          id: newUser.id,
+          id: user.id,
         },
       };
       const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
