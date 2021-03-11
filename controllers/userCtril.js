@@ -21,16 +21,25 @@ const userCtrl = {
       const newUser = new Users({ name, email, password: passwordHash });
       await newUser.save();
 
-      const accessToken = createAccessToken({ id: newUser._id });
-      const refreshtoken = createRefreshToken({ id: newUser._id });
-
-      res.cookie("refreshtoken", refreshtoken, {
-        httpOnly: true,
-        path: "/user/refresh_token",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+      const payload = {
+        user: {
+          id: newUser.id,
+        },
+      };
+      const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1d",
       });
 
-      res.json({ accessToken });
+      // const accessToken = createAccessToken({ id: newUser._id });
+      // const refreshtoken = createRefreshToken({ id: newUser._id });
+
+      // res.cookie("refreshtoken", refreshtoken, {
+      //   httpOnly: true,
+      //   path: "/user/refresh_token",
+      //   maxAge: 7 * 24 * 60 * 60 * 1000,
+      // });
+
+      res.json({ token });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
@@ -50,46 +59,17 @@ const userCtrl = {
       if (!isMatch) {
         return res.status(400).json({ msg: " Incorrect password" });
       }
-      const accessToken = createAccessToken({ id: user._id });
-      const refreshtoken = createRefreshToken({ id: user._id });
 
-      res.cookie("refreshtoken", refreshtoken, {
-        httpOnly: true,
-        path: "/user/refresh_token",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+      const payload = {
+        user: {
+          id: newUser.id,
+        },
+      };
+      const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1d",
       });
 
-      res.json({ accessToken });
-    } catch (error) {
-      return res.status(500).json({ msg: error.message });
-    }
-  },
-  logout: async (req, res) => {
-    try {
-      res.clearCookie("refreshtoken", { path: "/user/refresh_token" });
-      return res.json({ msg: "Logged out" });
-    } catch (error) {
-      return res.status(500).json({ msg: error.message });
-    }
-  },
-  refreshToken: (req, res) => {
-    try {
-      const rf_token = req.cookies.refreshtoken;
-      //   res.json({ rf_token });
-
-      if (!rf_token) {
-        return res.status(400).json({ msg: "Please Login or Resgister" });
-      }
-
-      jwt.verify(rf_token, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-        if (err) {
-          return res.status(400).json({ msg: "Please Login or Resgister" });
-        }
-
-        const accessToken = createAccessToken({ id: user.id });
-
-        res.json({ accessToken });
-      });
+      res.json({ token });
     } catch (error) {
       return res.status(500).json({ msg: error.message });
     }
