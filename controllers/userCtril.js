@@ -62,11 +62,11 @@ const userCtrl = {
 
       const payload = {
         user: {
-          id: user.id,
+          id: user._id,
         },
       };
       const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: "1d",
+        expiresIn: "5d",
       });
 
       res.json({ token });
